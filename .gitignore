@@ -1,0 +1,12 @@
+# Haskell files
+dist
+cabal-dev
+*.o
+*.hi
+*.chi
+*.chs.h
+.virthualenv
+.dist-buildwrapper
+# Eclipse 
+.project
+.settings
