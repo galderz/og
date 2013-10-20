@@ -3,7 +3,7 @@ module OgSpec
 , spec
 ) where
 
-import Og 
+import Og
 import Test.Hspec
 
 main :: IO ()
@@ -13,10 +13,17 @@ spec :: Spec
 spec = do
   describe "Og builds" $ do
     it "a project without executing tests" $ do
-      build [] `shouldBe` ["mvn -Dmaven.test.skip.exec=true install"]
+      build Maven [] `shouldBe` ["mvn -Dmaven.test.skip.exec=true install"]
 
     it "a given set of modules without executing tests" $ do
-      build ["a", "b", "c"] `shouldBe` ["mvn -Dmaven.test.skip.exec=true install -pl a,b,c"]
+      build Maven ["a", "b", "c"] `shouldBe` 
+        ["mvn -Dmaven.test.skip.exec=true install -pl a,b,c"]
 
     it "and cleans a project without executing tests" $ do
-      build ["-c"] `shouldBe` ["mvn clean", "mvn -Dmaven.test.skip.exec=true install"]
+      build Maven ["-c"] `shouldBe` 
+        ["mvn clean", "mvn -Dmaven.test.skip.exec=true install"]
+
+    it "and cleans a given set of modules without executing tests" $ do
+      build Maven ["-c", "d", "e"] `shouldBe` 
+        ["mvn clean", "mvn -Dmaven.test.skip.exec=true install -pl d,e"]
+      

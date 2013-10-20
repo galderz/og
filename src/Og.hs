@@ -1,9 +1,13 @@
 module Og
 ( build
 , dispatch
+, Tool(..)
 ) where
 
-import Data.Char
+-- import Data.Char
+import Data.List
+
+data Tool = Maven | Gradle
 
 -- module Main where
 
@@ -18,7 +22,7 @@ import Data.Char
 --     mapM putStrLn $ action args   
 
 dispatch :: [(String, [String] -> [String])]  
-dispatch =  [ ("build", build)  
+dispatch =  [ ("build", build Maven)  
             -- , ("test", view)  
             -- , ("remove-topic", removeTopic)  
             ]  
@@ -27,16 +31,27 @@ dispatch =  [ ("build", build)
 -- TODO: Allow passing native options to build, i.e. -M-PjmxDoc (Maven)
 -- TODO: Split individual projects for Maven -pl 
 
-build :: [String] -> [String]  
-build [] = ["mvn -Dmaven.test.skip.exec=true install"]
-build ["-c"] = ["mvn clean", "mvn -Dmaven.test.skip.exec=true install"]
-build [x:xs] = ["mvn -Dmaven.test.skip.exec=true install -pl " ++ projectList(x:xs)]
-build ["-c", projects] = ["mvn clean", "mvn -Dmaven.test.skip.exec=true install -pl " ++ projectList(projects)]
-build _ = ["<invalid>"] 
--- build ["-c"] = ["mvn clean", "mvn -Dmaven.test.skip.exec=true install"] 
+build :: Tool -> [String] -> [String]  
+build t [] = [buildAll t]
+build t ("-c":[]) = [cleanAll t, buildAll t]
+build t ("-c":pl) = [cleanAll t, unwords [buildAll t, listProjects t pl]]
+build t (pl) = [unwords [buildAll t, listProjects t pl]]
 
-projectList :: [Char] -> [Char]
-projectList xs = [if isSpace x then ',' else toLower x | x<-xs]
+cleanAll :: Tool -> String
+cleanAll Maven = "mvn clean"
+cleanAll Gradle = "gradle clean"
+
+buildAll :: Tool -> String  
+buildAll Maven = "mvn -Dmaven.test.skip.exec=true install"
+buildAll Gradle = "gradle -xtest build"
+
+listProjects :: Tool -> [String] -> String
+listProjects Maven [] = ""
+listProjects Maven pl = "-pl " ++ intercalate "," pl
+listProjects Gradle _ = ""
+
+-- projectList :: [Char] -> [Char]
+-- projectList xs = [if isSpace x then ',' else toLower x | x<-xs]
 
 -- command :: [String] -> [String]
 -- command args

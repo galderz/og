@@ -7,6 +7,6 @@ main :: IO [()]
 main = do
     (command:args) <- getArgs
     putStrLn "The arguments are:"  
-    mapM putStrLn args
+    _ <- mapM putStrLn args
     let (Just action) = lookup command dispatch  
     mapM putStrLn $ action args   
