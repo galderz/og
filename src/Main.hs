@@ -1,12 +1,16 @@
 module Main (main) where
 
+import Data.List
 import Og
+import System.Process
 import System.Environment 
 
 main :: IO [()]
 main = do
     (command:args) <- getArgs
-    putStrLn "The arguments are:"  
-    _ <- mapM putStrLn args
+    putStr $ "$ " ++ command ++ intercalate "," args  
     let (Just action) = lookup command dispatch  
-    mapM putStrLn $ action args   
+    putStr $ " -> "  
+    _ <- mapM putStrLn $ action args
+    _ <- system $ concat $ action args
+    return [()]
